@@ -1,738 +1,295 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>قص الصور وتغيير أبعادها | WebBag</title>
-  <meta name="description" content="أداة مجانية لقص الصور وتغيير أبعادها مباشرة من المتصفح، مع تنزيل النتيجة بصيغة PNG أو JPG أو WEBP." />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" />
+  <title>قص الصور وتغيير أبعادها | WebBag</title>
+
+  <meta name="description" content="أداة مجانية لقص الصور وتغيير أبعادها أونلاين. تدعم JPG وPNG وWEBP وHEIC وغيرها من الصيغ مباشرة من المتصفح.">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
 
   <style>
-    :root{
-      --bg:#f5f7fb;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --primary:#2563eb;
-      --primary-dark:#1d4ed8;
-      --border:#dbe3ee;
-      --shadow:0 12px 35px rgba(15, 23, 42, 0.10);
-      --radius:22px;
-    }
-
-    *{ box-sizing:border-box; }
-    html,body{ margin:0; padding:0; }
     body{
-      font-family: Tahoma, Arial, sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(14,165,233,.10), transparent 24%),
-        var(--bg);
-      color:var(--text);
-    }
-
-    .wrap{
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 28px 16px 40px;
-    }
-
-    .hero{
-      background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
-      color:#fff;
-      border-radius: 28px;
-      padding: 28px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
-
-    .hero::after{
-      content:"";
-      position:absolute;
-      inset:auto -90px -110px auto;
-      width:260px;
-      height:260px;
-      background: rgba(255,255,255,.08);
-      border-radius: 50%;
-      filter: blur(2px);
-    }
-
-    .hero h1{
-      margin:0 0 10px;
-      font-size: clamp(28px, 3vw, 44px);
-      line-height:1.25;
-    }
-
-    .hero p{
       margin:0;
-      color: rgba(255,255,255,.88);
-      font-size: 16px;
-      line-height:1.9;
-      max-width: 760px;
+      padding:20px;
+      background:#f5f7fb;
+      font-family:Tahoma,Arial,sans-serif;
+      color:#1e293b;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: 18px;
-      margin-top: 18px;
+    .container{
+      max-width:1000px;
+      margin:auto;
     }
 
     .card{
-      background: var(--card);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
+      background:#fff;
+      border-radius:20px;
+      padding:25px;
+      box-shadow:0 4px 20px rgba(0,0,0,.08);
     }
 
-    .card h2{
-      margin:0 0 14px;
-      font-size: 20px;
-    }
-
-    .dropzone{
-      border:2px dashed #9fb7f2;
-      background: linear-gradient(180deg, #f8fbff, #eef4ff);
-      border-radius: 20px;
-      padding: 22px;
+    h1{
+      color:#2563eb;
       text-align:center;
-      transition: .2s ease;
-      cursor:pointer;
-      min-height: 180px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      gap:12px;
+      margin-top:0;
     }
 
-    .dropzone.dragover{
-      transform: scale(1.01);
-      border-color: var(--primary);
-      background: linear-gradient(180deg, #eff6ff, #dbeafe);
-    }
-
-    .dropzone .icon{
-      width: 60px;
-      height:60px;
-      border-radius: 18px;
-      display:grid;
-      place-items:center;
-      background: rgba(37,99,235,.12);
-      color: var(--primary);
-      font-size: 28px;
-    }
-
-    .dropzone strong{
-      font-size: 18px;
-    }
-
-    .dropzone span{
-      color: var(--muted);
+    .subtitle{
+      text-align:center;
+      color:#64748b;
       line-height:1.8;
-      font-size: 14px;
+      margin-bottom:25px;
     }
 
-    input[type="file"]{
+    .upload-box{
+      border:2px dashed #93c5fd;
+      border-radius:16px;
+      padding:30px;
+      text-align:center;
+      cursor:pointer;
+      background:#eff6ff;
+      transition:.3s;
+    }
+
+    .upload-box:hover{
+      background:#dbeafe;
+    }
+
+    input[type=file]{
       display:none;
     }
 
+    #preview-container{
+      margin-top:25px;
+      display:none;
+    }
+
+    #image{
+      max-width:100%;
+      display:block;
+    }
+
     .controls{
+      margin-top:20px;
       display:grid;
-      gap: 14px;
+      gap:15px;
     }
 
     .row{
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .field{
-      display:grid;
-      gap: 8px;
-    }
-
-    .field label{
-      font-size: 14px;
-      color: var(--muted);
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:10px;
     }
 
     select,
-    input[type="number"],
-    input[type="text"]{
-      width:100%;
-      border:1px solid var(--border);
-      background:#fff;
-      color:var(--text);
-      padding: 12px 14px;
-      border-radius: 14px;
-      outline:none;
-      font-size: 15px;
+    input[type=number],
+    button{
+      padding:14px;
+      border-radius:12px;
+      border:1px solid #cbd5e1;
+      font-size:15px;
     }
 
-    select:focus,
-    input[type="number"]:focus,
-    input[type="text"]:focus{
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
-    }
-
-    .buttons{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .btn{
+    button{
+      background:#2563eb;
+      color:#fff;
       border:none;
-      border-radius: 14px;
-      padding: 12px 16px;
       cursor:pointer;
-      font-size: 15px;
-      font-weight:700;
-      transition:.2s ease;
     }
 
-    .btn-primary{
-      background: var(--primary);
-      color:#fff;
+    button:hover{
+      background:#1d4ed8;
     }
 
-    .btn-primary:hover{ background: var(--primary-dark); }
-
-    .btn-soft{
-      background:#eef4ff;
-      color:#1d4ed8;
-    }
-
-    .btn-soft:hover{
-      background:#dbeafe;
-    }
-
-    .btn-ghost{
-      background:#f1f5f9;
-      color:#0f172a;
-    }
-
-    .btn-ghost:hover{
-      background:#e2e8f0;
-    }
-
-    .preview-wrap{
-      display:grid;
-      gap: 14px;
-    }
-
-    .canvas-shell{
-      border:1px solid var(--border);
-      border-radius: 20px;
-      overflow:hidden;
-      background:#0b1220;
-      min-height: 420px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 10px;
-      position:relative;
-    }
-
-    .canvas-shell img,
-    .canvas-shell canvas{
-      max-width: 100%;
-      display:block;
-    }
-
-    .placeholder{
-      color: rgba(255,255,255,.75);
+    .note{
+      color:#64748b;
+      font-size:14px;
       text-align:center;
-      line-height:1.9;
-      padding: 20px;
+      margin-top:15px;
+      line-height:1.8;
     }
 
-    .meta{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .output{
-      display:grid;
-      gap: 14px;
-    }
-
-    .download-box{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    a.download-link{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding: 12px 16px;
-      border-radius: 14px;
-      background: #16a34a;
-      color:#fff;
-      text-decoration:none;
-      font-weight:700;
-    }
-
-    a.download-link:hover{ background:#15803d; }
-
-    .hint{
-      color: var(--muted);
-      font-size: 14px;
-      line-height:1.9;
-    }
-
-    .divider{
-      height:1px;
-      background: var(--border);
-      margin: 10px 0;
-    }
-
-    .toggles{
-      display:flex;
-      gap: 10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .toggle{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      background:#f8fafc;
-      border:1px solid var(--border);
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-size: 14px;
-      color: var(--text);
-    }
-
-    .toggle input{
-      width: 18px;
-      height: 18px;
-      margin:0;
-    }
-
-    .small{
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-      .canvas-shell{ min-height: 360px; }
-    }
-
-    @media (max-width: 600px){
-      .hero{ padding: 22px 18px; }
-      .card{ padding: 16px; }
-      .row{ grid-template-columns: 1fr; }
-      .buttons{ display:grid; grid-template-columns: 1fr 1fr; }
-      .btn{ width:100%; }
-      .buttons .btn-primary{ grid-column: 1 / -1; }
+    @media (max-width:768px){
+      body{
+        padding:15px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <h1>قص الصور وتغيير أبعادها بسهولة</h1>
-      <p>
-        أداة مجانية تعمل مباشرة من المتصفح لرفع الصورة، قصها، تحديد نسبة القص، تغيير الأبعاد، ثم تنزيل النتيجة بصيغة PNG أو JPG أو WEBP.
+
+<div class="container">
+  <div class="card">
+
+    <h1>قص الصور وتغيير أبعادها</h1>
+
+    <p class="subtitle">
+      ارفع صورتك، قصها بسهولة، غيّر أبعادها، ثم نزّلها بالصيغة التي تريدها.
+    </p>
+
+    <label class="upload-box" for="fileInput">
+      اضغط هنا لاختيار صورة أو اسحبها وأفلتها
+    </label>
+
+    <input
+      id="fileInput"
+      type="file"
+      accept="image/*,.heic,.heif"
+    >
+
+    <div id="preview-container">
+
+      <img id="image" alt="معاينة الصورة">
+
+      <div class="controls">
+
+        <div class="row">
+          <select id="aspectRatio">
+            <option value="NaN">قص حر</option>
+            <option value="1">1:1</option>
+            <option value="1.777777">16:9</option>
+            <option value="0.5625">9:16</option>
+            <option value="1.333333">4:3</option>
+          </select>
+
+          <input type="number" id="width" placeholder="العرض (اختياري)">
+
+          <input type="number" id="height" placeholder="الارتفاع (اختياري)">
+
+          <select id="format">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPG</option>
+            <option value="webp">WEBP</option>
+          </select>
+        </div>
+
+        <button id="downloadBtn">
+          قص وتحميل الصورة
+        </button>
+
+      </div>
+
+      <p class="note">
+        تدعم الأداة معظم صيغ الصور بما فيها صور الآيفون HEIC وHEIF.
       </p>
-    </section>
 
-    <div class="grid">
-      <section class="card">
-        <h2>1) ارفع الصورة</h2>
-
-        <div class="dropzone" id="dropzone">
-          <div class="icon">🖼️</div>
-          <strong>اسحب الصورة هنا أو اضغط للاختيار</strong>
-          <span>تدعم الأداة JPG و PNG و WEBP.</span>
-        </div>
-        <input id="fileInput" type="file" accept="image/*" />
-
-        <div class="divider"></div>
-
-        <div class="controls">
-          <div class="row">
-            <div class="field">
-              <label for="aspectRatio">نسبة القص</label>
-              <select id="aspectRatio">
-                <option value="free">حر</option>
-                <option value="1">1:1</option>
-                <option value="4/5">4:5</option>
-                <option value="16/9">16:9</option>
-                <option value="9/16">9:16</option>
-                <option value="3/2">3:2</option>
-                <option value="2/3">2:3</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="format">صيغة الحفظ</label>
-              <select id="format">
-                <option value="png">PNG</option>
-                <option value="jpeg">JPG</option>
-                <option value="webp">WEBP</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label for="width">العرض النهائي (px)</label>
-              <input id="width" type="number" min="1" placeholder="اتركه فارغًا للاحتفاظ بالحجم" />
-            </div>
-
-            <div class="field">
-              <label for="height">الارتفاع النهائي (px)</label>
-              <input id="height" type="number" min="1" placeholder="اتركه فارغًا للاحتفاظ بالحجم" />
-            </div>
-          </div>
-
-          <div class="toggles">
-            <label class="toggle">
-              <input id="keepRatio" type="checkbox" checked />
-              الحفاظ على النسبة عند تغيير الأبعاد
-            </label>
-
-            <label class="toggle">
-              <input id="useCustomSize" type="checkbox" />
-              استخدام المقاس النهائي
-            </label>
-          </div>
-
-          <div class="buttons">
-            <button class="btn btn-soft" id="rotateLeftBtn" type="button">تدوير يسار</button>
-            <button class="btn btn-soft" id="rotateRightBtn" type="button">تدوير يمين</button>
-            <button class="btn btn-soft" id="zoomInBtn" type="button">تكبير</button>
-            <button class="btn btn-soft" id="zoomOutBtn" type="button">تصغير</button>
-            <button class="btn btn-ghost" id="resetBtn" type="button">إعادة الضبط</button>
-            <button class="btn btn-primary" id="downloadBtn" type="button">قص وتحميل</button>
-          </div>
-
-          <p class="hint">
-            يمكنك تحريك الصورة داخل الإطار، وتغيير النسبة من القائمة، ثم تنزيل النتيجة مباشرة.
-          </p>
-        </div>
-      </section>
-
-      <section class="card preview-wrap">
-        <h2>2) المعاينة والقص</h2>
-
-        <div class="meta">
-          <span id="fileName">لم يتم اختيار صورة بعد</span>
-          <span id="imageInfo">—</span>
-        </div>
-
-        <div class="canvas-shell" id="canvasShell">
-          <div class="placeholder" id="placeholder">
-            ستظهر الصورة هنا بعد الرفع.<br />
-            بعد ذلك يمكنك القص وتغيير الأبعاد والتنزيل.
-          </div>
-          <img id="image" alt="معاينة الصورة" style="display:none; max-width:100%;" />
-        </div>
-
-        <div class="output">
-          <div class="field">
-            <label for="previewSize">حجم الإخراج المقترح</label>
-            <input id="previewSize" type="text" readonly value="—" />
-          </div>
-
-          <div class="field">
-            <label>ملاحظات</label>
-            <div class="small">
-              إذا لم تختاري مقاسًا نهائيًا، سيتم حفظ القص بالحجم الأصلي للصورة المقصوصة.
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
+
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+<script>
+const fileInput = document.getElementById("fileInput");
+const image = document.getElementById("image");
+const previewContainer = document.getElementById("preview-container");
+const aspectRatio = document.getElementById("aspectRatio");
+const downloadBtn = document.getElementById("downloadBtn");
+const widthInput = document.getElementById("width");
+const heightInput = document.getElementById("height");
+const formatSelect = document.getElementById("format");
 
-  <script>
-    (function () {
-      'use strict';
+let cropper;
 
-      const fileInput = document.getElementById('fileInput');
-      const dropzone = document.getElementById('dropzone');
-      const image = document.getElementById('image');
-      const placeholder = document.getElementById('placeholder');
-      const fileName = document.getElementById('fileName');
-      const imageInfo = document.getElementById('imageInfo');
-      const previewSize = document.getElementById('previewSize');
+fileInput.addEventListener("change", async (e) => {
 
-      const aspectRatio = document.getElementById('aspectRatio');
-      const format = document.getElementById('format');
-      const widthInput = document.getElementById('width');
-      const heightInput = document.getElementById('height');
-      const keepRatio = document.getElementById('keepRatio');
-      const useCustomSize = document.getElementById('useCustomSize');
+  let file = e.target.files[0];
 
-      const rotateLeftBtn = document.getElementById('rotateLeftBtn');
-      const rotateRightBtn = document.getElementById('rotateRightBtn');
-      const zoomInBtn = document.getElementById('zoomInBtn');
-      const zoomOutBtn = document.getElementById('zoomOutBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const downloadBtn = document.getElementById('downloadBtn');
+  if (!file) return;
 
-      let cropper = null;
-      let currentObjectUrl = '';
-      let naturalW = 0;
-      let naturalH = 0;
+  try {
 
-      function updateOutputPreview() {
-        if (!naturalW || !naturalH) {
-          previewSize.value = '—';
-          return;
-        }
+    if (
+      file.type === "image/heic" ||
+      file.type === "image/heif" ||
+      file.name.toLowerCase().endsWith(".heic") ||
+      file.name.toLowerCase().endsWith(".heif")
+    ) {
 
-        let outW = naturalW;
-        let outH = naturalH;
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.9
+      });
 
-        const cropData = cropper ? cropper.getCropBoxData() : null;
-        const imgData = cropper ? cropper.getImageData() : null;
+      file = new File(
+        [convertedBlob],
+        file.name.replace(/\.(heic|heif)$/i, ".jpg"),
+        { type: "image/jpeg" }
+      );
+    }
 
-        if (cropper && imgData) {
-          const canvasData = cropper.getCanvasData();
-          const scaleX = imgData.naturalWidth / canvasData.naturalWidth;
-          const scaleY = imgData.naturalHeight / canvasData.naturalHeight;
+    const imageURL = URL.createObjectURL(file);
 
-          const cropW = Math.max(1, Math.round(cropData.width * scaleX));
-          const cropH = Math.max(1, Math.round(cropData.height * scaleY));
+    image.src = imageURL;
 
-          outW = cropW;
-          outH = cropH;
-        }
+    previewContainer.style.display = "block";
 
-        if (useCustomSize.checked) {
-          const w = parseInt(widthInput.value, 10);
-          const h = parseInt(heightInput.value, 10);
-          if (w > 0) outW = w;
-          if (h > 0) outH = h;
-        }
+    image.onload = () => {
 
-        previewSize.value = `${outW} × ${outH} px`;
+      if (cropper) {
+        cropper.destroy();
       }
 
-      function destroyCropper() {
-        if (cropper) {
-          cropper.destroy();
-          cropper = null;
-        }
-      }
-
-      function setAspectRatio(value) {
-        if (!cropper) return;
-
-        if (value === 'free') {
-          cropper.setAspectRatio(NaN);
-        } else {
-          cropper.setAspectRatio(eval(value));
-        }
-      }
-
-      function loadImage(file) {
-        if (!file || !file.type.startsWith('image/')) {
-          alert('يرجى اختيار صورة صحيحة.');
-          return;
-        }
-
-        fileName.textContent = file.name;
-        imageInfo.textContent = 'جاري التحميل...';
-        previewSize.value = '—';
-
-        if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-        currentObjectUrl = URL.createObjectURL(file);
-
-        image.onload = () => {
-          naturalW = image.naturalWidth;
-          naturalH = image.naturalHeight;
-
-          imageInfo.textContent = `${naturalW} × ${naturalH} px`;
-          placeholder.style.display = 'none';
-          image.style.display = 'block';
-
-          destroyCropper();
-          cropper = new Cropper(image, {
-            viewMode: 1,
-            dragMode: 'move',
-            autoCropArea: 1,
-            responsive: true,
-            background: false,
-            movable: true,
-            zoomable: true,
-            rotatable: true,
-            scalable: true,
-            checkOrientation: true,
-            aspectRatio: NaN,
-            guides: true,
-            center: true
-          });
-
-          updateOutputPreview();
-        };
-
-        image.src = currentObjectUrl;
-      }
-
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        loadImage(file);
+      cropper = new Cropper(image, {
+        viewMode: 1,
+        autoCropArea: 1
       });
+    };
 
-      dropzone.addEventListener('click', () => fileInput.click());
+  } catch (error) {
+    alert("تعذر فتح الصورة.");
+    console.error(error);
+  }
+});
 
-      ['dragenter', 'dragover'].forEach((evt) => {
-        dropzone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropzone.classList.add('dragover');
-        });
-      });
+aspectRatio.addEventListener("change", () => {
 
-      ['dragleave', 'drop'].forEach((evt) => {
-        dropzone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropzone.classList.remove('dragover');
-        });
-      });
+  if (!cropper) return;
 
-      dropzone.addEventListener('drop', (e) => {
-        const file = e.dataTransfer.files && e.dataTransfer.files[0];
-        loadImage(file);
-      });
+  const ratio = aspectRatio.value === "NaN"
+    ? NaN
+    : parseFloat(aspectRatio.value);
 
-      aspectRatio.addEventListener('change', () => {
-        setAspectRatio(aspectRatio.value);
-        updateOutputPreview();
-      });
+  cropper.setAspectRatio(ratio);
+});
 
-      [widthInput, heightInput, useCustomSize].forEach((el) => {
-        el.addEventListener('input', updateOutputPreview);
-        el.addEventListener('change', updateOutputPreview);
-      });
+downloadBtn.addEventListener("click", () => {
 
-      rotateLeftBtn.addEventListener('click', () => {
-        if (!cropper) return;
-        cropper.rotate(-90);
-      });
+  if (!cropper) return;
 
-      rotateRightBtn.addEventListener('click', () => {
-        if (!cropper) return;
-        cropper.rotate(90);
-      });
+  const width = parseInt(widthInput.value) || undefined;
+  const height = parseInt(heightInput.value) || undefined;
 
-      zoomInBtn.addEventListener('click', () => {
-        if (!cropper) return;
-        cropper.zoom(0.1);
-      });
+  const canvas = cropper.getCroppedCanvas({
+    width,
+    height,
+    imageSmoothingQuality: "high"
+  });
 
-      zoomOutBtn.addEventListener('click', () => {
-        if (!cropper) return;
-        cropper.zoom(-0.1);
-      });
+  const format = formatSelect.value;
+  const mimeType = "image/" + format;
 
-      resetBtn.addEventListener('click', () => {
-        if (!cropper) return;
-        cropper.reset();
-        aspectRatio.value = 'free';
-        cropper.setAspectRatio(NaN);
-        widthInput.value = '';
-        heightInput.value = '';
-        useCustomSize.checked = false;
-        updateOutputPreview();
-      });
+  canvas.toBlob((blob) => {
 
-      downloadBtn.addEventListener('click', async () => {
-        if (!cropper) {
-          alert('يرجى رفع صورة أولًا.');
-          return;
-        }
+    const link = document.createElement("a");
 
-        const mime = format.value === 'jpg' ? 'image/jpeg' : `image/${format.value}`;
-        const quality = mime === 'image/png' ? 1 : 0.92;
+    link.href = URL.createObjectURL(blob);
 
-        const canvas = cropper.getCroppedCanvas({
-          imageSmoothingEnabled: true,
-          imageSmoothingQuality: 'high'
-        });
+    link.download = "webbag-image." + (format === "jpeg" ? "jpg" : format);
 
-        if (!canvas) {
-          alert('تعذر إنشاء الصورة النهائية.');
-          return;
-        }
+    link.click();
 
-        let finalCanvas = canvas;
+  }, mimeType, 0.95);
+});
+</script>
 
-        if (useCustomSize.checked) {
-          const w = parseInt(widthInput.value, 10);
-          const h = parseInt(heightInput.value, 10);
-
-          if (w > 0 || h > 0) {
-            const targetW = w > 0 ? w : canvas.width;
-            const targetH = h > 0 ? h : canvas.height;
-
-            const resizeCanvas = document.createElement('canvas');
-            resizeCanvas.width = targetW;
-            resizeCanvas.height = targetH;
-
-            const ctx = resizeCanvas.getContext('2d');
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(canvas, 0, 0, targetW, targetH);
-
-            finalCanvas = resizeCanvas;
-          }
-        }
-
-        finalCanvas.toBlob((blob) => {
-          if (!blob) {
-            alert('تعذر تنزيل الصورة.');
-            return;
-          }
-
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-
-          const baseName = (fileName.textContent || 'image')
-            .replace(/\.[^.]+$/, '')
-            .trim()
-            .replace(/[^\w\u0600-\u06FF-]+/g, '-');
-
-          const ext = format.value === 'jpg' ? 'jpg' : format.value;
-          a.download = `${baseName}-cropped.${ext}`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-
-          setTimeout(() => URL.revokeObjectURL(url), 1500);
-        }, mime, quality);
-      });
-
-      window.addEventListener('resize', () => {
-        if (cropper) cropper.resize();
-      });
-    })();
-  </script>
 </body>
   </html>
